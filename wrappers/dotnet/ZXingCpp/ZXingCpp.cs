@@ -226,9 +226,10 @@ namespace ZXingCpp
         public override string ToString() => MarshalAsString(ZXing_PositionToString(this));
     };
 
-    public class ImageView
+    public class ImageView : IDisposable
     {
         internal IntPtr _d;
+        private bool _disposedValue;
 
         public ImageView(byte[] data, int width, int height, ImageFormat format, int rowStride = 0, int pixStride = 0)
             => _d = CheckError(ZXing_ImageView_new_checked(data, data.Length, width, height, format, rowStride, pixStride));
@@ -236,22 +237,54 @@ namespace ZXingCpp
         public ImageView(IntPtr data, int width, int height, ImageFormat format, int rowStride = 0, int pixStride = 0)
             => _d = CheckError(ZXing_ImageView_new(data, width, height, format, rowStride, pixStride));
 
-        ~ImageView() => ZXing_ImageView_delete(_d);
+        ~ImageView() => Dispose(false);
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposedValue)
+            {
+                return;
+            }
+
+            ZXing_ImageView_delete(_d);
+            _d = IntPtr.Zero;
+
+            _disposedValue = true;
+        }
     }
 
     public class Image : IDisposable
     {
         internal IntPtr _d;
+        private bool _disposedValue;
 
         internal Image(IntPtr d) => _d = d;
 
-        ~Image() => Dispose();
+        ~Image() => Dispose(false);
 
         public void Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposedValue)
+            {
+                return;
+            }
+
             ZXing_Image_delete(_d);
             _d = IntPtr.Zero;
-            GC.SuppressFinalize(this);
+
+            _disposedValue = true;
         }
 
         public IntPtr Data => ZXing_Image_data(_d);
@@ -263,7 +296,7 @@ namespace ZXingCpp
         {
             IntPtr ptr = ZXing_Image_data(_d);
             if (ptr == IntPtr.Zero)
-                return new byte[0];
+                return Array.Empty<byte>();
 
             int len = Width * Height;
             byte[] res = new byte[len];
@@ -272,13 +305,33 @@ namespace ZXingCpp
         }
     }
 
-    public class ReaderOptions
+    public class ReaderOptions : IDisposable
     {
         internal IntPtr _d;
+        private bool _disposedValue;
 
         public ReaderOptions() => _d = CheckError(ZXing_ReaderOptions_new(), "Failed to create ReaderOptions.");
 
-        ~ReaderOptions() => ZXing_ReaderOptions_delete(_d);
+        ~ReaderOptions() => Dispose(false);
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposedValue)
+            {
+                return;
+            }
+
+            ZXing_ReaderOptions_delete(_d);
+            _d = IntPtr.Zero;
+
+            _disposedValue = true;
+        }
 
         public bool TryHarder
         {
@@ -353,16 +406,36 @@ namespace ZXingCpp
         }
     }
 
-    public class CreatorOptions
+    public class CreatorOptions : IDisposable
     {
         internal IntPtr _d;
+        private bool _disposedValue;
 
         public CreatorOptions(BarcodeFormat format)
             => _d = CheckError(ZXing_CreatorOptions_new(format), "Failed to create CreatorOptions.");
 
         public static implicit operator CreatorOptions(BarcodeFormat f) => new CreatorOptions(f);
 
-        ~CreatorOptions() => ZXing_CreatorOptions_delete(_d);
+        ~CreatorOptions() => Dispose(false);
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposedValue)
+            {
+                return;
+            }
+
+            ZXing_CreatorOptions_delete(_d);
+            _d = IntPtr.Zero;
+
+            _disposedValue = true;
+        }
 
         public bool ReaderInit
         {
@@ -383,13 +456,33 @@ namespace ZXingCpp
         }
     }
 
-    public class WriterOptions
+    public class WriterOptions : IDisposable
     {
         internal IntPtr _d;
+        private bool _disposedValue;
 
         public WriterOptions() => _d = CheckError(ZXing_WriterOptions_new(), "Failed to create WriterOptions.");
 
-        ~WriterOptions() => ZXing_WriterOptions_delete(_d);
+        ~WriterOptions() => Dispose(false);
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposedValue)
+            {
+                return;
+            }
+
+            ZXing_WriterOptions_delete(_d);
+            _d = IntPtr.Zero;
+
+            _disposedValue = true;
+        }
 
         public int Scale
         {
@@ -422,19 +515,39 @@ namespace ZXingCpp
         }
     }
 
-    public class Barcode
+    public class Barcode : IDisposable
     {
         internal IntPtr _d;
+        private bool _disposedValue;
 
         internal Barcode(IntPtr d) => _d = d;
 
-        ~Barcode() => ZXing_Barcode_delete(_d);
+        ~Barcode() => Dispose(false);
 
         public Barcode(string data, CreatorOptions opts)
             => _d = CheckError(ZXing_CreateBarcodeFromText(data, data.Length, opts._d));
 
         public Barcode(byte[] data, CreatorOptions opts)
             => _d = CheckError(ZXing_CreateBarcodeFromBytes(data, data.Length, opts._d));
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposedValue)
+            {
+                return;
+            }
+
+            ZXing_Barcode_delete(_d);
+            _d = IntPtr.Zero;
+
+            _disposedValue = true;
+        }
 
         public bool IsValid => ZXing_Barcode_isValid(_d);
         public BarcodeFormat Format => ZXing_Barcode_format(_d);
